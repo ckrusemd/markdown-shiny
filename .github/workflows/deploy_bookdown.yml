@@ -1,0 +1,50 @@
+on:
+  push:
+     branches:
+       - main
+
+name: shiny-markdown
+
+jobs:
+  bookdown:
+    name: renderbook
+    #runs-on: macOS-latest
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - uses: r-lib/actions/setup-r@v1
+      - uses: r-lib/actions/setup-pandoc@v1
+      - name: Rvest dependencies 1
+        run: sudo apt-get update
+      - name: Install rmarkdown
+        run: Rscript -e 'install.packages(c("rmarkdown","bookdown","pacman","devtools","RCurl","rPref","rvest","epibasix","tabulizer"))'
+      - name: Install packages 
+        run:  Rscript -e 'install.packages(c("markdown","shiny")'
+      - name: Render Book
+        run: Rscript -e 'bookdown::render_book("index.Rmd")'
+      - uses: actions/upload-artifact@v1
+        with:
+          name: _book
+          path: _book/
+
+  checkout-and-deploy:
+    runs-on: ubuntu-latest
+    needs: bookdown
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Download artifact
+      uses: actions/download-artifact@v2
+      with:
+        name: _book # optional
+        path: _book # optional
+    - name: Deploy to GitHub Pages
+      uses: Cecilapp/GitHub-Pages-deploy@v3
+      with:
+        build_dir: _book/
+        email: ${{ secrets.EMAIL }}optional
+        jekyll: no                     # optional
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        EMAIL: ${{ secrets.EMAIL }} 
+        BUILD_DIR: _book/
