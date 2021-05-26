@@ -19,7 +19,7 @@ jobs:
       - name: Install rmarkdown
         run: Rscript -e 'install.packages(c("rmarkdown","bookdown","pacman","devtools","RCurl","rPref","rvest","epibasix","tabulizer"))'
       - name: Install packages 
-        run:  Rscript -e 'install.packages(c("markdown","shiny")'
+        run:  Rscript -e 'install.packages(c("markdown","shiny"))'
       - name: Render Book
         run: Rscript -e 'bookdown::render_book("index.Rmd")'
       - uses: actions/upload-artifact@v1
